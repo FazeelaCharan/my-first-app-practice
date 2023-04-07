@@ -1,79 +1,80 @@
-import "package:flutter/material.dart";
+import 'package:english_words/english_words.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(Practiceapp());
+  runApp(MyApp());
 }
 
-class Practiceapp extends StatelessWidget {
-  const Practiceapp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        backgroundColor: Colors.deepPurple,
-        appBar: AppBar(
-          backgroundColor: Colors.red,
-          title: Text(
-            "practice your work",
-            style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-            ),
+    return ChangeNotifierProvider(
+      create: (context) => MyAppState(),
+      child: MaterialApp(
+        title: 'Namer App',
+        theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.green)),
+        home: MyHomePage(),
+      ),
+    );
+  }
+}
+
+class MyAppState extends ChangeNotifier {
+  var current = WordPair.random();
+  void getNext() {
+    current = WordPair.random();
+    notifyListeners();
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    var pair = appState.current;
+
+    return Scaffold(
+      body: Column(
+        children: [
+          Text('A random AWESOME idea:'),
+          bigCard(pair: pair),
+          ElevatedButton(
+            onPressed: () {
+              appState.getNext();
+            },
+            child: Text('Next'),
           ),
-          centerTitle: true,
-        ),
-        drawer: Drawer(),
-        bottomNavigationBar: BottomNavigationBar(
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "home"),
-            BottomNavigationBarItem(icon: Icon(Icons.phone), label: "contact"),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          child: Icon(Icons.add_a_photo),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        body: Center(
-          child: Container(
-            height: double.infinity,
-            width: 300,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-                color: Colors.blue,
-                image: const DecorationImage(
-                  image: NetworkImage(
-                      'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
-                  fit: BoxFit.cover,
-                  filterQuality: FilterQuality.high,
-                ),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  width: 8,
-                ),
-                // borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black,
-                      offset: Offset(12, 9),
-                      blurRadius: 30),
-                ]),
-            padding: EdgeInsets.all(30),
-            margin: EdgeInsets.all(30),
-            child: Center(
-              child: Text(
-                "welcome to my first ever project and you will love it each and every blog of mine",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ),
+        ],
+      ),
+    );
+  }
+}
+
+class bigCard extends StatelessWidget {
+  const bigCard({
+    Key? key,
+    required this.pair,
+  }) : super(key: key);
+
+  final WordPair pair;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.displayMedium!.copyWith(
+      color: theme.colorScheme.onPrimary,
+    );
+    return Card(
+      color: theme.colorScheme.primary,
+      elevation: 100,
+      child: Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: Text(pair.asLowerCase, style: style),
       ),
     );
   }
